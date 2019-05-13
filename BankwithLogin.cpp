@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 
 using namespace std;
 
@@ -65,9 +66,17 @@ int main(){
 	
 	vector<clients> my_client;
 	vector<accounts> my_account;
-	
+	ofstream outfile;
+	ifstream infile;
 	bool run = true;
+	int logTries = 3;
 	while(run){
+		if(logTries == 0){
+			cout << "Unable to login." << endl << "EXITING PROGRAM..." << endl;
+			//toRun = false;
+			//run = false;
+			return 0;
+		}
 		int option,i;
 		cout << "1. Create Account" << endl;
 		cout << "2. Login" << endl;
@@ -76,15 +85,24 @@ int main(){
 		cin >> option;
 		system("cls");
 		if(option == 1){
+			outfile.open("bank.txt", ios::app);
+			infile.open("bank.txt");
+			//after asking for credintials check on wether they exist. 
+			//If they do, ask to for them to be re-entered
 			string name, accNum, cliNum, password;
 			cout << "Enter name: ";
 			cin >> name;
+			outfile << "Name: " << name << " ";
 			cout << "Enter account number: ";
 			cin >> accNum;
+			outfile << "accNum: " << accNum << " ";
 			cout << "Enter client number: ";
 			cin >> cliNum;
+			outfile << "cliNum: " << cliNum << " ";
 			cout << "Enter password: ";
 			cin >> password;
+			outfile << "Password: " << password << endl;
+			outfile.close();
 			clients client(name, accNum, cliNum);
 			accounts account(accNum, password); 
 			my_client.push_back(client);
@@ -94,6 +112,8 @@ int main(){
 			cout << account.accNum;*/	
 		}else if(option == 2){
 			string accNum, password;
+			infile.open("bank.txt");
+			cout << "Tries: " << logTries <<endl;
 			cout << "Enter account number: ";
 			cin >> accNum;
 			cout << "Enter password: ";
@@ -101,7 +121,17 @@ int main(){
 			system("cls");
 			for(i = 0; i < my_account.size(); i++){
 				bool toRun=true;
-				if(my_account[i].accNum == accNum && my_account[i].password == password){
+				string line;
+				int offset1, offset2;
+				string num;
+				string pass;
+				num = accNum;
+				pass = password;
+				//while(!infile.eof()){
+				//	getline(infile, line);
+					
+				infile.close();
+				if((my_account[i].accNum == accNum && my_account[i].password == password) && logTries > 0){
 					cout << "Successful Login" << endl;
 					while(toRun){
 						cout << "1. Deposit" << endl;
@@ -137,9 +167,16 @@ int main(){
 						}
 					}
 					
+				}else if((my_account[i].accNum != accNum || my_account[i].password != password) && logTries > 0){
+					//cout << logTries << endl;
+					cout << "Wrong Account Number or Password" << endl << "Try again" << endl;;
+					logTries--;
+					system("pause");
+					system("cls");
+					//cout << logTries << endl;
 				}
 			}
-		}else if(option == 3){
+		}else if(option > 3){
 			cout << "EXITING PROGRAM..." << endl;
 			return 0;
 		}
